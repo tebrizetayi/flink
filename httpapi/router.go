@@ -9,9 +9,9 @@ import (
 )
 
 // API returns a handler for a set of routes.
-func API(shutdown chan os.Signal) http.Handler {
+func API(shutdown chan os.Signal, ttl int) http.Handler {
 
-	app := app.NewApp()
+	app := app.NewApp(ttl)
 
 	p := NewController(app)
 

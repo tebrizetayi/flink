@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/tebrizetayi/flink/httpapi"
@@ -16,6 +17,14 @@ func main() {
 	if port == "" {
 		port = ":8080"
 	}
+
+	ttl := os.Getenv("LOCATION_HISTORY_TTL_SECONDS")
+
+	ttlValue, err := strconv.Atoi(ttl)
+	if err != nil {
+		ttlValue = 60
+	}
+
 	// Make a channel to listen for an interrupt or terminate signal from the OS.
 	// Use a buffered channel because the signal package requires it.
 	shutdown := make(chan os.Signal, 1)
@@ -28,7 +37,7 @@ func main() {
 	// Start the HTTP service listening for requests.
 	api := http.Server{
 		Addr:           port,
-		Handler:        httpapi.API(shutdown),
+		Handler:        httpapi.API(shutdown, ttlValue),
 		MaxHeaderBytes: 1 << 20,
 	}
 
